@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.Material;
 import org.bukkit.Bukkit;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -23,27 +24,37 @@ public class ChristmasCardCommandExecutor implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            World world = player.getWorld();
-            int x = player.getLocation().getBlockX();
-            int y = player.getLocation().getBlockY();
-            int z = player.getLocation().getBlockZ();
+        if (args.length > 1) {
+            // Extract the first argument as the target player's name
+            String targetPlayerName = args[0];
 
-            if (args.length > 0) {
-                String text = String.join(" ", args).toUpperCase(); // Convert text to uppercase
-                generateText(world, x, y, z, text); // Place the text in the world
-                player.sendMessage("Text has been written!");
-            } else {
-                player.sendMessage("Please provide some text to write.");
+            // Check if the target player is online
+            Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+            if (targetPlayer == null) {
+                sender.sendMessage("Player not found or is not online.");
+                return false;
             }
 
-            return true;
+            // Get the target player's world and position
+            World world = targetPlayer.getWorld();
+            int x = targetPlayer.getLocation().getBlockX();
+            int y = targetPlayer.getLocation().getBlockY();
+            int z = targetPlayer.getLocation().getBlockZ();
+
+            // Join the rest of the arguments to form the text
+            String text = String.join(" ", Arrays.copyOfRange(args, 1, args.length)).toUpperCase(); // Convert text to uppercase
+
+            // Generate the text in the world
+            generateText(world, x, y, z, text);
+            sender.sendMessage("The christmas card has been sent to " + targetPlayerName+"!");
+
         } else {
-            sender.sendMessage("This command can only be run by a player.");
-            return false;
+            sender.sendMessage("Please provide the player's name and the text to write.");
         }
+
+        return true;
     }
+
 
     // Define letter-to-block mappings for each letter of the alphabet
     private final Map<Character, boolean[][]> letterMap = new HashMap<>();
@@ -123,9 +134,9 @@ public class ChristmasCardCommandExecutor implements CommandExecutor {
         });
 
         letterMap.put('J', new boolean[][]{
-                {true, true, true},
-                {false, true, false},
-                {false, true, false},
+                {false, true, true},
+                {false, false, true},
+                {false, false, true},
                 {true, false, true},
                 {true, true, true}
         });
@@ -134,8 +145,8 @@ public class ChristmasCardCommandExecutor implements CommandExecutor {
                 {true, false, true},
                 {true, true, false},
                 {true, true, false},
-                {true, false, true},
-                {true, false, false}
+                {true, true, false},
+                {true, false, true}
         });
 
         letterMap.put('L', new boolean[][]{
@@ -149,7 +160,7 @@ public class ChristmasCardCommandExecutor implements CommandExecutor {
         letterMap.put('M', new boolean[][]{
                 {true, false, true},
                 {true, true, true},
-                {true, false, true},
+                {true, true, true},
                 {true, false, true},
                 {true, false, true}
         });
@@ -191,7 +202,7 @@ public class ChristmasCardCommandExecutor implements CommandExecutor {
                 {true, false, true},
                 {true, true, false},
                 {true, false, true},
-                {true, false, false}
+                {true, false, true}
         });
 
         letterMap.put('S', new boolean[][]{
@@ -236,18 +247,18 @@ public class ChristmasCardCommandExecutor implements CommandExecutor {
 
         letterMap.put('X', new boolean[][]{
                 {true, false, true},
-                {true, true, false},
-                {false, true, true},
-                {true, true, false},
+                {true, true, true},
+                {false, true, false},
+                {true, false, true},
                 {true, false, true}
         });
 
         letterMap.put('Y', new boolean[][]{
                 {true, false, true},
-                {true, true, false},
-                {false, true, true},
-                {false, true, true},
-                {false, true, true}
+                {true, false, true},
+                {false, true, false},
+                {false, true, false},
+                {false, true, false}
         });
 
         letterMap.put('Z', new boolean[][]{
@@ -256,6 +267,14 @@ public class ChristmasCardCommandExecutor implements CommandExecutor {
                 {false, true, false},
                 {true, false, false},
                 {true, true, true}
+        });
+
+        letterMap.put(' ', new boolean[][]{
+                {false, false, false},
+                {false, false, false},
+                {false, false, false},
+                {false, false, false},
+                {false, false, false}
         });
 
         // Add more letters here...
